@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
-import ToDoList from "./ToDoList";
+// Components
+import ToDoList from "./pages/ToDoList";
 
 const GlobalStyle = createGlobalStyle`
   ${reset};

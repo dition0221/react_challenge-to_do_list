@@ -8,12 +8,11 @@
 ---
 
 - **23-11-27 : #6.5 / Set up (+ Code Challenge(3 days)[1st day])**
-- **23-11-28 : #6.6 ~ #6.19 / React-Hook-Form (+ Code Challenge(3 days)[2nd day])**
-  <!-- TODO: 구글 폰트 다운 -->
+- **23-11-28 : #6.6 ~ #6.15 / React-Hook-Form + Recoil (+ Code Challenge(3 days)[2nd day])**
 
 ---
 
-- **23-11-29 : #6.6 ~ #6.19 / Set up (+ Code Challenge(3 days)[3rd day])**
+- **23-11-29 : #6.16 ~ #6.19 / (+ Code Challenge(3 days)[3rd day])**
 
 노마드 코더 정책 상 강의요약은 괜찮으나, 코드와 필기는 공개적인 곳에 올리면 안 됨.
 필기 요약지는 암호화된 .zip 파일로 저장함.
