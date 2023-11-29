@@ -1,14 +1,16 @@
 import { useForm } from "react-hook-form";
-import { useSetRecoilState } from "recoil";
-import { toDoState } from "../atom"; // Atom
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { categoryState, toDoState } from "../atom";
+import { Btn, Error, Input, Wrapper } from "./shared-style";
 
 interface IForm {
   toDo: string;
 }
 
 export default function CreateToDo() {
-  // Atom: setterFn
-  const setToDos = useSetRecoilState(toDoState);
+  // Atom
+  const setToDoList = useSetRecoilState(toDoState);
+  const category = useRecoilValue(categoryState); // selected 'category'
 
   // Form
   const {
@@ -17,24 +19,41 @@ export default function CreateToDo() {
     reset,
     formState: { errors },
   } = useForm<IForm>();
-  const handleValid = ({ toDo }: IForm) => {
-    setToDos((oldToDos) => [
-      ...oldToDos,
-      { text: toDo, id: Date.now(), category: "TO_DO" },
-    ]);
+  const onSubmit = ({ toDo }: IForm) => {
+    setToDoList((oldToDoList) => {
+      const newToDo = {
+        id: Date.now(),
+        text: toDo,
+      };
+      return {
+        ...oldToDoList,
+        [category]: [...oldToDoList[category], newToDo],
+      };
+    });
     reset();
   };
 
   return (
-    <form onSubmit={handleSubmit(handleValid)}>
-      <input
-        {...register("toDo", { required: "Please write a 'To-Do'" })}
-        type="text"
-        placeholder="Write a 'To-Do'"
-        required
-      />
-      <button>Add</button>
-      <span>{errors.toDo?.message}</span>
-    </form>
+    <Wrapper>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Input
+          {...register("toDo", {
+            required: "Please write a 'To-Do'.",
+            minLength: {
+              value: 2,
+              message: "Please write more than 2 characters.",
+            },
+            maxLength: {
+              value: 10,
+              message: "Please write less than 10 characters.",
+            },
+          })}
+          type="text"
+          placeholder="Write a 'To-Do'"
+        />
+        <Btn>Add</Btn>
+        <Error>{errors.toDo?.message}</Error>
+      </form>
+    </Wrapper>
   );
 }

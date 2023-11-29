@@ -1,23 +1,42 @@
 import { useRecoilValue } from "recoil";
-import { toDoState } from "../atom"; // Atom
+import { toDoSelector } from "../atom";
+import styled from "styled-components";
 // Components
 import CreateToDo from "../components/CreateToDo";
 import ToDo from "../components/ToDo";
+import SelectCategory from "../components/SelectCategory";
+
+const Wrapper = styled.main`
+  width: 420px;
+  padding: 0 20px;
+  margin: 0 auto;
+  hr {
+    margin-bottom: 20px;
+  }
+`;
+
+const Title = styled.h1`
+  margin-top: 20px;
+  font-size: 32px;
+  text-align: center;
+`;
 
 export default function ToDoList() {
-  // Atom: value
-  const toDos = useRecoilValue(toDoState);
+  // Atom: current category's 'To-Do List'
+  const toDoList = useRecoilValue(toDoSelector);
 
   return (
-    <div>
-      <h1>To Dos</h1>
+    <Wrapper>
+      <Title>To-Do List</Title>
       <hr />
+      <SelectCategory />
       <CreateToDo />
+
       <ul>
-        {toDos.map((toDo) => (
+        {toDoList.map((toDo) => (
           <ToDo key={toDo.id} {...toDo} />
         ))}
       </ul>
-    </div>
+    </Wrapper>
   );
 }

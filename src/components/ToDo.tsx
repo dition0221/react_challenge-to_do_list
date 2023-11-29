@@ -1,35 +1,71 @@
-import { useSetRecoilState } from "recoil";
-import { IToDo, toDoState } from "../atom"; // Atom
+import { useRecoilState, useRecoilValue } from "recoil";
+import { IToDo, IToDoState, categoryState, toDoState } from "../atom";
+import styled from "styled-components";
+import { Btn, DeleteBtn } from "./shared-style";
 
-export default function ToDo({ text, category, id }: IToDo) {
-  // Atom: setterFn
-  const setToDos = useSetRecoilState(toDoState);
+const Li = styled.li`
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  line-height: 2;
+`;
 
-  // Update 'category'
-  const onClick = (newCategory: IToDo["category"]) => {
-    setToDos((oldToDos) => {
-      const targetIdx = oldToDos.findIndex((toDo) => toDo.id === id);
-      const newToDo = { text, id, category: newCategory };
-      return [
-        ...oldToDos.slice(0, targetIdx),
-        newToDo,
-        ...oldToDos.slice(targetIdx + 1),
-      ];
+const ToDoText = styled.span``;
+
+export default function ToDo({ text, id }: IToDo) {
+  // Atom
+  const [toDoList, setToDoList] = useRecoilState(toDoState);
+  const currentCategory = useRecoilValue(categoryState);
+
+  // Change 'category'
+  const onChangeCategory = (newCategory: keyof IToDoState) => {
+    setToDoList((oldToDoList) => {
+      const {
+        [currentCategory]: currentList,
+        [newCategory]: targetList,
+        ..._
+      } = oldToDoList;
+      const idx = currentList.findIndex((toDo) => toDo.id === id);
+      return {
+        ..._,
+        [currentCategory]: [
+          ...currentList.slice(0, idx),
+          ...currentList.slice(idx + 1),
+        ],
+        [newCategory]: [...targetList, { text, id }],
+      };
+    });
+  };
+
+  // Delete 'To-Do'
+  const onDeleteToDo = () => {
+    setToDoList((oldToDoList) => {
+      const { [currentCategory]: currentList, ..._ } = oldToDoList;
+      const idx = currentList.findIndex((toDo) => toDo.id === id);
+      return {
+        ..._,
+        [currentCategory]: [
+          ...currentList.slice(0, idx),
+          ...currentList.slice(idx + 1),
+        ],
+      };
     });
   };
 
   return (
-    <li>
-      <span>{text}</span>
-      {category !== "TO_DO" && (
-        <button onClick={() => onClick("TO_DO")}>To-Do</button>
+    <Li>
+      <ToDoText>▪ {text}</ToDoText>
+      {Object.keys(toDoList).map(
+        (category) =>
+          category !== currentCategory && (
+            <Btn key={category} onClick={() => onChangeCategory(category)}>
+              {category}
+            </Btn>
+          )
       )}
-      {category !== "DOING" && (
-        <button onClick={() => onClick("DOING")}>Doing</button>
-      )}
-      {category !== "DONE" && (
-        <button onClick={() => onClick("DONE")}>Done</button>
-      )}
-    </li>
+      <DeleteBtn onClick={onDeleteToDo}>❌</DeleteBtn>
+    </Li>
   );
 }
