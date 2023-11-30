@@ -42,15 +42,15 @@
     - ex.
       ```
       <input
-      	{...register("password", {
-      		required: true,
-      		minLength: {
-      			value: 5,
-      			message: "Your password is too short.",
-      		},
-      	})}
-      	type="password"
-      	placeholder="Password"
+        {...register("password", {
+          required: true,
+          minLength: {
+            value: 5,
+            message: "Your password is too short.",
+          },
+        })}
+        type="password"
+        placeholder="Password"
       />
       ```
   - form에서의 정규식 (Regular Expression)
@@ -58,15 +58,15 @@
     - ex.
       ```
       <input
-      	{...register("email", {
-      		required: true,
-      		pattern: {
-      			value: /^[A-Za-z0-9._%+-]+@naver\.com$/,
-      			message: "Only naver.com emails allowed",
-      		},
-      	})}
-      	type="email"
-      	placeholder="Email"
+        {...register("email", {
+          required: true,
+          pattern: {
+            value: /^[A-Za-z0-9._%+-]+@naver\.com$/,
+            message: "Only naver.com emails allowed",
+          },
+        })}
+        type="email"
+        placeholder="Email"
       />
       ```
     - <a href="https://regex101.com/" target="_blank">정규식 테스트 사이트</a>
@@ -94,12 +94,12 @@
       - ex.
         ```
         const onValid = (data: IForm) => {
-        	if (data.password !== data.password1)
-        		setError(
-        			"password1",
-        			{ message: "Password are not the same." },
-        			{ shouldFocus: true }
-        		);
+          if (data.password !== data.password1)
+            setError(
+              "password1",
+              { message: "Password are not the same." },
+              { shouldFocus: true }
+            );
         };
         ```
     - form 요소 이외의 추가적인 에러 생성 시 제네릭에서 옵션변수를 생성해 사용할 것
@@ -111,8 +111,8 @@
         - 기본형
           ```
           validate: {
-          	함수명: (인자) => 반환값,
-          	...
+            함수명: (인자) => 반환값,
+            ...
           }
           ```
       - async 비동기 함수를 사용해 서버에 확인 후 응답을 받을 수도 있음
@@ -124,11 +124,11 @@
     - ex. _&lt;form&gt; 제출 시 실행되는 함수를 커스텀_
       ```
       const handleValid = ({ toDo }: IForm) => {
-      	setToDos((oldToDos) => [
-      		...oldToDos,
-      		{ text: toDo, id: Date.now(), category: "TO_DO" },
-      	]);
-      	reset();
+        setToDos((oldToDos) => [
+          ...oldToDos,
+          { text: toDo, id: Date.now(), category: "TO_DO" },
+        ]);
+        reset();
       };
       ```
   - 객체값을 가지는 배열에서 특정 요소의 객체값을 수정하는 방법 [Recoil]
@@ -148,35 +148,103 @@
          ```
          const newToDo = { text, id, category: newCategory };
          return [
-         	...oldToDos.slice(0, targetIdx),
-         	newToDo,
-         	...oldToDos.slice(targetIdx + 1),
+           ...oldToDos.slice(0, targetIdx),
+           newToDo,
+           ...oldToDos.slice(targetIdx + 1),
          ];
          ```
     - 전체적인 ex.
       ```
       const onClick = (newCategory: IToDo["category"]) => {
-      	setToDos((oldToDos) => {
-      		const targetIdx = oldToDos.findIndex((toDo) => toDo.id === id);
-      		const newToDo = { text, id, category: newCategory };
-      		return [
-      			...oldToDos.slice(0, targetIdx),
-      			newToDo,
-      			...oldToDos.slice(targetIdx + 1),
-      		];
-      	});
+        setToDos((oldToDos) => {
+          const targetIdx = oldToDos.findIndex((toDo) => toDo.id === id);
+          const newToDo = { text, id, category: newCategory };
+          return [
+            ...oldToDos.slice(0, targetIdx),
+            newToDo,
+            ...oldToDos.slice(targetIdx + 1),
+          ];
+        });
       };
       <li>
-      	{category !== "TO_DO" && (
-      		<button onClick={() => onClick("TO_DO")}>To-Do</button>
-      	)}
+        {category !== "TO_DO" && (
+          <button onClick={() => onClick("TO_DO")}>To-Do</button>
+        )}
       </li>
       ```
 - **23-11-29 : #6.16 ~ #6.19 + #7.0 ~ #7.1 / Recoil Selector + Deploy (+ Code Challenge(3 days)[3rd day])**
-  - Update
-    - To-Do 삭제 기능
-    - 커스텀 Category 추가 / 변경 / 삭제 기능
-    - localStorage 저장 기능
+  - _Update_
+    - _To-Do 삭제 기능_
+    - _커스텀 Category 추가 / 변경 / 삭제 기능_
+    - _localStorage 저장 기능_
+  - selector (Recoil)
+    - atom의 상태를 변환하거나 계산하여, 새로운 값으로 return하는 함수
+      - atom의 state는 변환시키지 않고, output을 변형시키는 도구
+    - 선언 기본형
+      ```
+      const 변수명 = selector({
+        key: 이름,
+        get: ({ get }) => 함수내용,
+        ?set: ({ set, ?get }, newValue) => 함수내용
+      });
+      ```
+      - get 함수 : [ReadOnly] 다른 atom이나 selector를 기반으로 값을 계산함
+        - return하는 값이 해당 selector의 value가 됨
+        - get 인자 : 다른 atom이나 selector를 가져오는 메서드
+          - 사용법 : `const 변수명 = get(아톰명);`
+          - get으로 보고있는 아톰의 state가 바뀌면, selector의 값도 바뀜
+        - 'useRecoilValue'를 사용해 selector를 가져와 사용할 수 있음
+      - set 함수 : [Write] 해당 selector로부터 파생된 state를 업데이트하기 위해 사용
+        - set 인자 : 다른 atom이나 selector의 값을 쓰는 메서드
+        - newValue = 업데이트하려는 state의 새 값
+        - 사용법 : `set(아톰명, newValue);`
+        - selector의 setter함수(useSetRecoilState)를 통해 state를 수정함
+    - ex. 하나의 atom으로 minutes ↔️ hours 변환기
+      ```
+      const hourSelector = selector({
+        key: "hours",
+        get: ({ get }) => {
+          const minutes = get(minuteState);
+          return minutes / 60;
+        },
+        set: ({ set }, newValue) => {
+          const minutes = Number(newValue) * 60;
+          set(minutesState, minutes);
+        }
+      });
+      ```
+  - enum
+    - 열거형 타입 선언법
+      - 각 멤버는 기본적으로 숫자 값이 할당됨 (0에서 시작하며, 1씩 증가)
+        - 직접적으로 값(숫자 또는 문자열)을 줄 수도 있음
+      - 열거형은 특정 값 집합 중 하나를 선택하는데 도움을 줌
+    - 선언법 : `const enum 변수명 { 멤버1, 멤버2, ... }`
+      - 주로 변수명의 첫 글자는 대문자를 사용
+      - 주로 문자열값 멤버명은 대문자로 사용
+      - enum을 일반적인 상태로 컴파일 시 코드스페이스를 오염시키므로, 'const enum' 형태로 사용
+    - 사용법 : `enum변수명.멤버`
+      - 프로퍼티처럼 사용하므로 실수를 방지할 수 있음
+      - ex.
+        ```
+        const categoryState = atom({
+          key: "category",
+          default: Categories.TO_DO,
+        });
+        ```
+  - <a href="https://www.npmjs.com/package/recoil-persist" target="_blank">recoil-persist 패키지</a>
+    - Recoil 상태를 지속적으로 저장하고 복원하기 위해 사용되는 패키지
+      - localStorage나 다른 저장매체에 저장하여, 상태를 유지할 수 있음
+    - 설치법 : `npm i recoil-persist`
+    - 설정법 : `const { persistAtom } = recoilPersist({ ?옵션 });`
+      - 옵션
+        - key : localStorage에 데이터 저장 시 사용되는 key명
+          - 기본값 : "recoil-persist"
+        - storage : 데이터를 저장할 저장소 설정
+          - 기본값 : localStorage
+        - converter : 저장소에서 값을 직렬화/역직렬화하는 방법을 구성
+          - 기본값: JSON
+    - 사용법 : 사용하고자하는 atom에 `effects_UNSTABLE: [persistAtom]` 키-값을 추가
+    - 설정만 해놓으면 localStorage에 저장(set)과 불러오기(get)를 자동으로 실행함
 
 ---
 
